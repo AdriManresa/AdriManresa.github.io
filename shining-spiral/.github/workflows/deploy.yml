@@ -1,23 +1,39 @@
 name: Deploy Astro to GitHub Pages
+
 on:
   push:
     branches: [ main ]
+
 permissions:
   contents: read
   pages: write
   id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+# IMPORTANTe: si tu proyecto está en /shining-spiral
+defaults:
+  run:
+    working-directory: shining-spiral
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: '20' }
+        with:
+          node-version: 20
       - run: npm ci
       - run: npm run build
+      # Evita que Pages intente procesar con Jekyll
+      - run: touch dist/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: shining-spiral/dist
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
