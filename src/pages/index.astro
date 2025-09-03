@@ -1,8 +1,22 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
-import Header from '../components/Header.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import BaseHead from "../components/BaseHead.astro";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import { getCollection } from "astro:content";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+
+// Trae los posts de la colección "blog"
+function toDate(d: unknown) {
+	return d ? new Date(d as string) : new Date(0);
+}
+
+const posts = (await getCollection("blog", ({ data }) => !(data.draft ?? false))).sort(
+  (a, b) =>
+    +new Date(b.data.pubDate ?? "") -
+    +new Date(a.data.pubDate ?? "")
+);
+
+
 ---
 
 <!doctype html>
@@ -13,16 +27,38 @@ import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 	<body>
 		<Header />
 		<main>
-			<h1>Hola! Soy Adriana</h1>
+			<h1>Hola, Soy Adri!</h1>
 
-			<h3>Bienvenidos a mi blog ✍️ </h3>
+			<h3>Bienvenidos a mi blog ✍️</h3>
 			<p>
-				Este es mi espacio para compartir escritos, ideas y exploraciones.  
-				Acá vas a encontrar desde reflexiones íntimas hasta experimentos creativos.
-				Te invito a ir aca arriba a Blogs, ahi encontraras mis escritos.
+				Este es mi espacio para compartir escritos, ideas y
+				exploraciones. Acá vas a encontrar desde reflexiones íntimas
+				hasta experimentos creativos. Te invito a ir aca arriba a Blogs,
+				ahi encontraras mis escritos.
 			</p>
 			<p>¡Buen viaje!</p>
+			<h2>Últimos escritos</h2>
+			<ul>
+				{
+					posts.map((p) => {
+						const d = toDate(p.data.pubDate ?? p.data.pubDate);
+						return (
+							<li>
+								<a href={`/blog/${p.id}/`}>{p.data.title}</a>
+								<small>
+									{" "}
+									—{" "}
+									{isNaN(+d)
+										? ""
+										: d.toLocaleDateString("es-AR")}
+								</small>
+							</li>
+						);
+					})
+				}
+			</ul>
 		</main>
+
 		<Footer />
 	</body>
 </html>
