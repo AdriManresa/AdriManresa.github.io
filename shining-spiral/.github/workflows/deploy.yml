@@ -1,3 +1,4 @@
+# .github/workflows/deploy.yml
 name: Deploy Astro to GitHub Pages
 
 on:
@@ -13,7 +14,6 @@ concurrency:
   group: "pages"
   cancel-in-progress: true
 
-# IMPORTANTe: si tu proyecto está en /shining-spiral
 defaults:
   run:
     working-directory: shining-spiral
@@ -28,8 +28,7 @@ jobs:
           node-version: 20
       - run: npm ci
       - run: npm run build
-      # Evita que Pages intente procesar con Jekyll
-      - run: touch dist/.nojekyll
+      - run: touch dist/.nojekyll   # evita que Pages reprocese con Jekyll
       - uses: actions/upload-pages-artifact@v3
         with:
           path: shining-spiral/dist
